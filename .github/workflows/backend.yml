@@ -1,0 +1,45 @@
+name: Backend
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - backend/**
+env:
+  DB_HOST: 127.0.0.1
+  DB_USERNAME: ${{ secrets.DB_USERNAME }}
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  DB_DATABASE: "marketplace_test_db"
+  DB_PORT: 3306
+  JWT_KEY: ${{ secrets.JWT_KEY }}
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Fetch code
+        uses: actions/checkout@v3
+      - name: Install Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "19"
+      - name: Install Node modules
+        working-directory: ./backend
+        run: npm install --include=devDependencies
+      - name: Start up MySQL server
+        uses: shogo/actions-setup-mysql@v1
+        with:
+          mysql-version: "8.0"
+        run: mysql -uroot -h127.0.0.1 -e 'SELECT version()'
+      - name: Setup MySQL server
+        run: |
+          mysql -h $DB_HOST -P $DB_PORT -u root -e "CREATE DATABASE $DB_DATABASE;"
+          mysql -h $DB_HOST -P $DB_PORT -u root -e "SHOW DATABASES;"
+          mysql -h $DB_HOST -P $DB_PORT -u root -e "ALTER USER 'root'@'localhost';"
+          mysql -h $DB_HOST -P $DB_PORT -u root -e "FLUSH PRIVILEGES" -ppassword
+      - name: Initialize database
+        working-directory: ./db
+        run: mysql -h $DB_HOST -P $DB_PORT -u root -ppassword $DB_DATABASE < init-db.sql
+      - name: Run tests for backend
+        working-directory: ./backend
+        run: npm run test
