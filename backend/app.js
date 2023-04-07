@@ -14,3 +14,5 @@ app.use(express.json())
 app.get('/pulsecheck', (req, res) => {
   res.send('Pulse OK.')
 })
+
+module.exports = app
