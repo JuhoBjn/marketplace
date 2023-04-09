@@ -1,11 +1,11 @@
 const supertest = require('supertest')
-const { describe, it, expect, afterAll } = require('@jest/globals')
+const { describe, it, expect, afterEach } = require('@jest/globals')
 
 const app = require('../app')
 const pool = require('../db/pool')
 
 describe('Authentication endpoints', () => {
-  afterAll(() => {
+  afterEach(() => {
     pool.getConnection((error, connection) => {
       if (error) console.log(error)
       connection.query(
@@ -39,6 +39,32 @@ describe('Authentication endpoints', () => {
     expect(response.body.id).toBeTruthy()
     expect(response.body.email).toBeTruthy()
     expect(response.body.token).toBeTruthy()
+  })
+
+  it('should not allow creation of two users with the same email', async () => {
+    const testUser = {
+      firstname: 'Test',
+      lastname: 'User',
+      email: 'test@user.com',
+      phone: '0123456789',
+      password: 'test@user123'
+    }
+
+    const response = await supertest(app)
+      .post('/users/signup')
+      .set('Accept', 'application/json')
+      .set('Content', 'application/json')
+      .send(testUser)
+
+    const response2 = await supertest(app)
+      .post('/users/signup')
+      .set('Accept', 'application/json')
+      .set('Content', 'application/json')
+      .send(testUser)
+
+    expect(response.status).toEqual(201)
+    expect(response2.status).toEqual(400)
+    expect(response2.message).toEqual('A user with this email already exists')
   })
 
   it('should not allow a user to sign up without a first name', async () => {
