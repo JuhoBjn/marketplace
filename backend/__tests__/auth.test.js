@@ -37,7 +37,7 @@ describe('Authentication endpoints', () => {
     expect(response.status).toEqual(201)
     expect(response.headers['content-type']).toMatch(/json/)
     expect(response.body.id).toBeTruthy()
-    expect(response.body.token).toBeTruthy()
+    expect(response.body.email).toBeTruthy()
     expect(response.body.token).toBeTruthy()
   })
 
