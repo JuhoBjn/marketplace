@@ -8,14 +8,10 @@ describe('Authentication endpoints', () => {
   afterEach(() => {
     pool.getConnection((error, connection) => {
       if (error) console.log(error)
-      connection.query(
-        'DELETE FROM users WHERE email LIKE ?;',
-        'test@user.com',
-        (error, response) => {
-          connection.release()
-          if (error) console.log(error)
-        }
-      )
+      connection.query('DELETE FROM users WHERE id=id;', (error, response) => {
+        connection.release()
+        if (error) console.log(error)
+      })
     })
   })
 
@@ -29,7 +25,7 @@ describe('Authentication endpoints', () => {
     }
 
     const response = await supertest(app)
-      .post('/users/signup')
+      .post('/api/users/signup')
       .set('Accept', 'application/json')
       .set('Content', 'application/json')
       .send(testUser)
@@ -51,20 +47,20 @@ describe('Authentication endpoints', () => {
     }
 
     const response = await supertest(app)
-      .post('/users/signup')
+      .post('/api/users/signup')
       .set('Accept', 'application/json')
       .set('Content', 'application/json')
       .send(testUser)
 
     const response2 = await supertest(app)
-      .post('/users/signup')
+      .post('/api/users/signup')
       .set('Accept', 'application/json')
       .set('Content', 'application/json')
       .send(testUser)
 
     expect(response.status).toEqual(201)
     expect(response2.status).toEqual(400)
-    expect(response2.message).toEqual('A user with this email already exists')
+    expect(response2.text).toEqual('A user with this email already exists')
   })
 
   it('should not allow a user to sign up without a first name', async () => {
@@ -77,13 +73,13 @@ describe('Authentication endpoints', () => {
     }
 
     const response = await supertest(app)
-      .post('/users/signup')
+      .post('/api/users/signup')
       .set('Accept', 'application/json')
       .set('Content', 'application/json')
       .send(testUser)
 
     expect(response.status).toEqual(400)
-    expect(response.message).toEqual('User must have a first name')
+    expect(response.text).toEqual('"firstname" is not allowed to be empty')
   })
 
   it('should not allow a user to sign up without a last name', async () => {
@@ -96,13 +92,13 @@ describe('Authentication endpoints', () => {
     }
 
     const response = await supertest(app)
-      .post('/users/signup')
+      .post('/api/users/signup')
       .set('Accept', 'application/json')
       .set('Content', 'application/json')
       .send(testUser)
 
     expect(response.status).toEqual(400)
-    expect(response.message).toEqual('User must have a last name')
+    expect(response.text).toEqual('"lastname" is not allowed to be empty')
   })
 
   it('should not allow a user to sign up without an email', async () => {
@@ -115,13 +111,13 @@ describe('Authentication endpoints', () => {
     }
 
     const response = await supertest(app)
-      .post('/users/signup')
+      .post('/api/users/signup')
       .set('Accept', 'application/json')
       .set('Content', 'application/json')
       .send(testUser)
 
     expect(response.status).toEqual(400)
-    expect(response.message).toEqual('User must have an email')
+    expect(response.text).toEqual('"email" is not allowed to be empty')
   })
 
   it('should not allow a user to sign up without a phone number', async () => {
@@ -134,13 +130,13 @@ describe('Authentication endpoints', () => {
     }
 
     const response = await supertest(app)
-      .post('/users/signup')
+      .post('/api/users/signup')
       .set('Accept', 'application/json')
       .set('Content', 'application/json')
       .send(testUser)
 
     expect(response.status).toEqual(400)
-    expect(response.message).toEqual('User must have a phone number')
+    expect(response.text).toEqual('"phone" is not allowed to be empty')
   })
 
   it('should not allow a user to sign up without a password', async () => {
@@ -153,12 +149,12 @@ describe('Authentication endpoints', () => {
     }
 
     const response = await supertest(app)
-      .post('/users/signup')
+      .post('/api/users/signup')
       .set('Accept', 'application/json')
       .set('Content', 'application/json')
       .send(testUser)
 
     expect(response.status).toEqual(400)
-    expect(response.message).toEqual('User must have a password')
+    expect(response.text).toEqual('"password" is not allowed to be empty')
   })
 })
