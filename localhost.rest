@@ -2,9 +2,23 @@ POST http://localhost:5000/api/users/signup
 Content-Type: application/json
 
 {
-  "firstname": "",
+  "firstname": "Tommy",
   "lastname": "Test",
   "email": "tommy@test.com",
   "phone": "0123456789",
   "password": "tommy@test1234"
 }
+
+###
+# @name login
+POST http://localhost:5000/api/users/login
+Content-Type: application/json
+Authorization: Bearer + {{ token }}
+
+{
+  "email": "tommy@test.com",
+  "password": "tommy@test1234"
+}
+
+###
+@token = {{ login.response.body.token }}
