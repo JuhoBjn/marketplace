@@ -21,11 +21,11 @@ USE `marketplace` ;
 -- Table `marketplace`.`users`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `marketplace`.`users` (
-  `id` INT NOT NULL AUTO_INCREMENT,
+  `id` VARCHAR(36) NOT NULL,
   `firstname` VARCHAR(25) NOT NULL,
   `lastname` VARCHAR(45) NOT NULL,
   `email` VARCHAR(256) NOT NULL,
-  `phone` INT(13) NOT NULL,
+  `phone` VARCHAR(13) NOT NULL,
   `password` VARCHAR(60) NOT NULL,
   `created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
