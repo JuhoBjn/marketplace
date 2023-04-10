@@ -219,8 +219,8 @@ describe('User login endpoint', () => {
 
   it('should not allow a user to login without valid credentials', async () => {
     const testUser = {
-      email: 'jane@doe.com',
-      password: 'jane@doe123'
+      email: 'tommy@test.com',
+      password: 'wrongP4ssword'
     }
 
     const response = await supertest(app)
@@ -233,6 +233,22 @@ describe('User login endpoint', () => {
     expect(response.text).toBe(
       'Invalid credentials. Please check email and password and try again.'
     )
+  })
+
+  it('should not allow a user to log in without an account', async () => {
+    const testUser = {
+      email: 'jane@doe.com',
+      password: 'jane@doe123'
+    }
+
+    const response = await supertest(app)
+      .post('/api/users/login')
+      .set('Accept', 'application/json')
+      .set('Content', 'application/json')
+      .send(testUser)
+
+    expect(response.status).toEqual(401)
+    expect(response.text).toBe('Could not find user for given email')
   })
 
   it('should not allow a user to login without email address', async () => {
