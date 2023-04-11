@@ -7,18 +7,22 @@ const {
   beforeAll,
   afterAll
 } = require('@jest/globals')
+const bcrypt = require('bcryptjs')
 
 const app = require('../app')
 const pool = require('../db/pool')
 
 describe('User signup endpoint', () => {
   afterEach(() => {
-    pool.getConnection((error, connection) => {
-      if (error) console.log(error)
-      const deleteQuery = 'DELETE FROM users WHERE email=?;'
-      connection.query(deleteQuery, ['test@user.com'], (error, response) => {
-        connection.release()
-        if (error) console.log(error)
+    return new Promise((resolve, reject) => {
+      pool.getConnection((error, connection) => {
+        if (error) return reject(error)
+        const deleteQuery = 'DELETE FROM users WHERE email=?;'
+        connection.query(deleteQuery, ['test@user.com'], (error, response) => {
+          connection.release()
+          if (error) return reject(error)
+          resolve(response)
+        })
       })
     })
   })
@@ -168,21 +172,29 @@ describe('User signup endpoint', () => {
 })
 
 describe('User login endpoint', () => {
-  beforeAll(async () => {
-    const testUser = {
-      id: '7997f9f8-b006-4cde-a1b1-18dcb4aafea9',
-      firstname: 'Tommy',
-      lastname: 'Test',
-      email: 'tommy@test.com',
-      phone: '0123456789',
-      password: '$2a$10$IkKSlW9qhzdg5aQlO3CcfO8YKnqV95Oyi4DsNZ6AgwdcFYhORJ9RW'
-    }
-    pool.getConnection((error, connection) => {
-      if (error) console.log(error)
-      const insertQuery = 'INSERT INTO users SET ?;'
-      connection.query(insertQuery, [testUser], (error, result) => {
-        connection.release()
-        if (error) console.log(error)
+  beforeAll(() => {
+    return new Promise((resolve, reject) => {
+      const testUser = {
+        id: '7997f9f8-b006-4cde-a1b1-18dcb4aafea9',
+        firstname: 'Tommy',
+        lastname: 'Test',
+        email: 'tommy@test.com',
+        phone: '0123456789',
+        password: 'tommy@test123'
+      }
+      bcrypt.hash(testUser.password, 10, (error, hash) => {
+        if (error) return reject(error)
+        testUser.password = hash
+
+        pool.getConnection((error, connection) => {
+          if (error) return reject(error)
+          const insertQuery = 'INSERT INTO users SET ?;'
+          connection.query(insertQuery, [testUser], (error, result) => {
+            connection.release()
+            if (error) return reject(error)
+            resolve(result)
+          })
+        })
       })
     })
   })
