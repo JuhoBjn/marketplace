@@ -199,13 +199,16 @@ describe('User login endpoint', () => {
     })
   })
 
-  afterAll(async () => {
-    pool.getConnection((error, connection) => {
-      if (error) console.log(error)
-      const deleteQuery = 'DELETE FROM users WHERE email=?;'
-      connection.query(deleteQuery, ['tommy@test.com'], (error, result) => {
-        connection.release()
-        if (error) console.log(error)
+  afterAll(() => {
+    return new Promise((resolve, reject) => {
+      pool.getConnection((error, connection) => {
+        if (error) return reject(error)
+        const deleteQuery = 'DELETE FROM users WHERE email=?;'
+        connection.query(deleteQuery, ['tommy@test.com'], (error, result) => {
+          connection.release()
+          if (error) return reject(error)
+          resolve(result)
+        })
       })
     })
   })
