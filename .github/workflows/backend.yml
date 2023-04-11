@@ -27,7 +27,7 @@ jobs:
         working-directory: ./backend
         run: npm install --include=devDependencies
       - name: Start up MySQL server
-        uses: shogo/actions-setup-mysql@v1
+        uses: shogo82148/actions-setup-mysql@v1
         with:
           mysql-version: "8.0"
       - name: Setup MySQL server
