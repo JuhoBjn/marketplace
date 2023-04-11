@@ -39,7 +39,7 @@ jobs:
           mysql -h $DB_HOST -P $DB_PORT -u root -e "FLUSH PRIVILEGES" -ppassword
       - name: Initialize database
         working-directory: ./db
-        run: mysql -h $DB_HOST -P $DB_PORT -u root -ppassword $DB_DATABASE < init-db.sql
+        run: mysql -h $DB_HOST -P $DB_PORT -u root -ppassword $DB_DATABASE < init.sql
       - name: Run tests for backend
         working-directory: ./backend
         run: npm run test
