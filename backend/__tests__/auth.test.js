@@ -8,6 +8,7 @@ const {
   afterAll
 } = require('@jest/globals')
 const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
 
 const app = require('../app')
 const pool = require('../db/pool')
@@ -296,5 +297,62 @@ describe('User login endpoint', () => {
 
     expect(response.status).toBe(400)
     expect(response.text).toBe('"password" is not allowed to be empty')
+  })
+})
+
+const checkToken = require('../middleware/checkToken')
+
+describe('Verify token middleware', () => {
+  it('should allow request if the request contains a valid token', () => {
+    const payload = {
+      id: '123oiusfd',
+      email: 'tommy@test.com'
+    }
+    const token = jwt.sign(payload, process.env.JWT_KEY)
+    const req = { headers: { authorization: `Bearer ${token}` } }
+    const res = {}
+    const next = jest.fn(() => {
+      return true
+    })
+    checkToken(req, res, next)
+
+    expect(next).toHaveBeenCalled()
+  })
+
+  it('should return an error if the request has invalid token', () => {
+    // Mock token generated on https://jwt.io
+    // Header = { "alg": "HS256", "typ": "JWT" }
+    // Payload = { "sub": "1234567890", "name: "John Doe", "iat": "1516239022" }
+    // Verify Signature = { HMACSHA256(base64UrlEncode(header) + "." +base64UrlEncode(payload), "super-secret-hehe")}
+    const token =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.Kw6H3veC_nvZTyqf0xRiizlbY4ZO1vfwmCSVzxiPSKM'
+    const req = { headers: { authorization: `Bearer ${token}` } }
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      send: jest.fn().mockReturnThis()
+    }
+    const next = jest.fn(() => {
+      return true
+    })
+    checkToken(req, res, next)
+
+    expect(res.status).toBeCalledWith(401)
+    expect(res.send).toBeCalledWith('Authentication failed')
+  })
+
+  it('should return an error when no token is provided in the request', () => {
+    const token = ''
+    const req = { headers: { authorization: `Bearer ${token}` } }
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      send: jest.fn().mockReturnThis()
+    }
+    const next = jest.fn(() => {
+      return true
+    })
+    checkToken(req, res, next)
+
+    expect(res.status).toBeCalledWith(401)
+    expect(res.send).toBeCalledWith('Authentication failed')
   })
 })
