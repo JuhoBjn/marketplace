@@ -9,7 +9,7 @@ env:
   DB_HOST: 127.0.0.1
   DB_USERNAME: ${{ secrets.DB_USERNAME }}
   DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-  DB_DATABASE: "marketplace_test_db"
+  DB_DATABASE: "marketplace"
   DB_PORT: 3306
   JWT_KEY: ${{ secrets.JWT_KEY }}
 jobs:
