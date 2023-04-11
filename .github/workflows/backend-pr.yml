@@ -35,7 +35,7 @@ jobs:
           mysql -uroot -h127.0.0.1 -e 'SELECT version()'
           mysql -h $DB_HOST -P $DB_PORT -u root -e "CREATE DATABASE $DB_DATABASE;"
           mysql -h $DB_HOST -P $DB_PORT -u root -e "SHOW DATABASES;"
-          mysql -h $DB_HOST -P $DB_PORT -u root -e "ALTER USER 'root'@'localhost';"
+          mysql -h $DB_HOST -P $DB_PORT -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';"
           mysql -h $DB_HOST -P $DB_PORT -u root -e "FLUSH PRIVILEGES" -ppassword
       - name: Initialize database
         working-directory: ./db
