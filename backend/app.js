@@ -18,4 +18,7 @@ app.get('/pulsecheck', (req, res) => {
 const users = require('./paths/users')
 app.use('/api/users', users)
 
+const listings = require('./paths/listings')
+app.use('/api/listings', listings)
+
 module.exports = app
