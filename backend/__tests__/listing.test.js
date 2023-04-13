@@ -2,6 +2,7 @@ const { describe, it, beforeAll, afterAll, expect } = require('@jest/globals')
 const supertest = require('supertest')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const { v4: genUuid } = require('uuid')
 
 const app = require('../app')
 const pool = require('../db/pool')
@@ -278,5 +279,149 @@ describe('Create listing endpoint', () => {
     expect(response.text).toBe(
       '"picture_url" must be a valid uri with a scheme matching the http|https pattern'
     )
+  })
+})
+
+describe('Update listing endpoint', () => {
+  const user = {}
+  let listing = {}
+
+  beforeAll(() => {
+    return new Promise((resolve, reject) => {
+      // Sign up a test user.
+      const testUser = {
+        id: 'b2862249-38f8-40cf-8e52-16428d837aa6',
+        firstname: 'John',
+        lastname: 'Test',
+        email: 'john@test.com',
+        phone: '1234567890',
+        password: 'john@test1234'
+      }
+      bcrypt.hash(testUser.password, 10, (err, hash) => {
+        if (err) return reject(err)
+        testUser.password = hash
+
+        pool.getConnection((err, connection) => {
+          if (err) return reject(err)
+          const insertQuery = 'INSERT INTO users SET ?;'
+          connection.query(insertQuery, [testUser], (err, result) => {
+            if (err) {
+              connection.release()
+              return reject(err)
+            }
+          })
+
+          // Create a test listing to update.
+          const testListing = {
+            id: genUuid(),
+            user_id: 'b2862249-38f8-40cf-8e52-16428d837aa6',
+            title: 'Test bnch',
+            description: 'Selling a good condition test bench',
+            price: 9200.0,
+            picture_url:
+              'https://cdn10.picryl.com/photo/1984/05/24/a-view-of-laboratory-equipment-used-for-laser-testing-at-the-verona-test-site-08ed51-1600.jpg'
+          }
+          const insertListingQuery = 'INSERT INTO listings SET ?;'
+          connection.query(insertListingQuery, [testListing], (err, result) => {
+            connection.release()
+            if (err) return reject(err)
+            listing = testListing
+            resolve(result)
+          })
+        })
+
+        user.id = testUser.id
+        user.email = testUser.email
+        user.token = jwt.sign(user, process.env.JWT_KEY)
+      })
+    })
+  })
+
+  afterAll(() => {
+    return new Promise((resolve, reject) => {
+      pool.getConnection((err, connection) => {
+        if (err) return reject(err)
+
+        // Delete test listing.
+        const deleteQuery = 'DELETE FROM listings WHERE id=?;'
+        connection.query(deleteQuery, [listing.id], (err, result) => {
+          if (err) {
+            connection.release()
+            return reject(err)
+          }
+        })
+
+        // Delete test user.
+        const deleteUserQuery = 'DELETE FROM users WHERE id=?;'
+        connection.query(deleteUserQuery, [user.id], (err, result) => {
+          connection.release()
+          if (err) return reject(err)
+          resolve(result)
+        })
+      })
+    })
+  })
+
+  it('should allow a logged in user to update their own listing', async () => {
+    const updatedListing = {
+      id: listing.id,
+      user_id: listing.id,
+      title: 'Test bench',
+      description: 'Selling a used test bench in good shape.',
+      price: 9100,
+      picture_url: listing.picture_url
+    }
+
+    const response = await supertest(app)
+      .put('/api/listings/update')
+      .set('Accept', 'application/json')
+      .set('Content', 'application/json')
+      .set('Authorization', `Bearer ${user.token}`)
+      .send(updatedListing)
+
+    expect(response.status).toBe(200)
+    expect(response.headers['content-type']).toMatch(/json/)
+    expect(response.body).toEqual(expect.objectContaining(updatedListing))
+  })
+
+  it("should not allow a user to update someone else's listing", async () => {
+    const updatedListing = {
+      id: listing.id,
+      user_id: '1c141505-3002-4911-90aa-22bc4878335f',
+      title: 'Test bench',
+      description: 'Selling a used test bench in good shape.',
+      price: 9100,
+      picture_url: listing.picture_url
+    }
+
+    const response = await supertest(app)
+      .put('/api/listings/update')
+      .set('Accept', 'application/json')
+      .set('Content', 'application/json')
+      .set('Authorization', `Bearer ${user.token}`)
+      .send(updatedListing)
+
+    expect(response.status).toBe(403)
+    expect(response.text).toBe("Cannot update someone else's listing")
+  })
+
+  it('should not allow an unauthenticated user to update a listing', async () => {
+    const updatedListing = {
+      id: listing.id,
+      user_id: user.id,
+      title: 'Test bench',
+      description: 'Selling a used test bench in good shape.',
+      price: 9100,
+      picture_url: listing.picture_url
+    }
+
+    const response = await supertest(app)
+      .put('/api/listings/update')
+      .set('Accept', 'application/json')
+      .set('Content', 'application/json')
+      .send(updatedListing)
+
+    expect(response.status).toBe(401)
+    expect(response.text).toBe('Authentication failed')
   })
 })

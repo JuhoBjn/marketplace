@@ -21,3 +21,38 @@ Content-Type: application/json
 
 ###
 @token = {{ login.response.body.token }}
+
+###
+@user_id = {{ login.response.body.id }}
+
+###
+# @name create
+POST http://localhost:5000/api/listings/create
+Content-Type: application/json
+Accept: application/json
+Authorization: BEARER {{token}}
+
+{
+  "user_id": "{{user_id}}",
+  "title": "Cucumber moped",
+  "description": "Selling my beloved cucumber moped, since I don't have time to ride it anymore.",
+  "price": 55,
+  "picture_url": "https://im.mtvuutiset.fi/image/7481386/landscape16_9/1024/576/e20bb1dea888345bbfb5a710a53f4f3d/DA/kurkkumopo.jpg"
+}
+
+###
+@listing_id = {{ create.response.body.id }}
+
+###
+PUT http://localhost:5000/api/listings/update
+Content-Type: application/json
+Accept: application/json
+
+{
+  "id": "{{listing_id}}",
+  "user_id": "{{user_id}}",
+  "title": "Test bench",
+  "description": "Selling a used test bench in good shape.",
+  "price": 9100,
+  "picture_url": "https://cdn10.picryl.com/photo/1984/05/24/a-view-of-laboratory-equipment-used-for-laser-testing-at-the-verona-test-site-08ed51-1600.jpg"
+}
