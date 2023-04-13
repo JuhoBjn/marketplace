@@ -37,7 +37,7 @@ ENGINE = InnoDB;
 -- Table `marketplace`.`listings`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `marketplace`.`listings` (
-  `id` INT NOT NULL AUTO_INCREMENT,
+  `id` VARCHAR(36) NOT NULL,
   `user_id` VARCHAR(36) NOT NULL,
   `title` VARCHAR(64) NOT NULL,
   `description` VARCHAR(250) NOT NULL,
