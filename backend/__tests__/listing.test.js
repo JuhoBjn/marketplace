@@ -290,7 +290,7 @@ describe('Update listing endpoint', () => {
     return new Promise((resolve, reject) => {
       // Sign up a test user.
       const testUser = {
-        id: 'b2862249-38f8-40cf-8e52-16428d837aa6',
+        id: genUuid(),
         firstname: 'John',
         lastname: 'Test',
         email: 'john@test.com',
@@ -314,7 +314,7 @@ describe('Update listing endpoint', () => {
           // Create a test listing to update.
           const testListing = {
             id: genUuid(),
-            user_id: 'b2862249-38f8-40cf-8e52-16428d837aa6',
+            user_id: testUser.id,
             title: 'Test bnch',
             description: 'Selling a good condition test bench',
             price: 9200.0,
@@ -365,7 +365,7 @@ describe('Update listing endpoint', () => {
   it('should allow a logged in user to update their own listing', async () => {
     const updatedListing = {
       id: listing.id,
-      user_id: listing.id,
+      user_id: listing.user_id,
       title: 'Test bench',
       description: 'Selling a used test bench in good shape.',
       price: 9100,
@@ -423,5 +423,47 @@ describe('Update listing endpoint', () => {
 
     expect(response.status).toBe(401)
     expect(response.text).toBe('Authentication failed')
+  })
+
+  it('should not allow updating a listing with no provided listing id', async () => {
+    const updatedListing = {
+      id: '',
+      user_id: user.id,
+      title: 'Test bench',
+      description: 'Selling a used test bench in good shape.',
+      price: 9100,
+      picture_url: listing.picture_url
+    }
+
+    const response = await supertest(app)
+      .put('/api/listings/update')
+      .set('Accept', 'application/json')
+      .set('Content', 'application/json')
+      .set('Authorization', `Bearer ${user.token}`)
+      .send(updatedListing)
+
+    expect(response.status).toBe(400)
+    expect(response.text).toBe('"id" is not allowed to be empty')
+  })
+
+  it('should not allow updating a listing with no provided user id', async () => {
+    const updatedListing = {
+      id: listing.id,
+      user_id: '',
+      title: 'Test bench',
+      description: 'Selling a used test bench in good shape.',
+      price: 9100,
+      picture_url: listing.picture_url
+    }
+
+    const response = await supertest(app)
+      .put('/api/listings/update')
+      .set('Accept', 'application/json')
+      .set('Content', 'application/json')
+      .set('Authorization', `Bearer ${user.token}`)
+      .send(updatedListing)
+
+    expect(response.status).toBe(400)
+    expect(response.text).toBe('"user_id" is not allowed to be empty')
   })
 })

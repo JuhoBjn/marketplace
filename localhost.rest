@@ -47,6 +47,7 @@ Authorization: BEARER {{token}}
 PUT http://localhost:5000/api/listings/update
 Content-Type: application/json
 Accept: application/json
+Authorization: BEARER {{token}}
 
 {
   "id": "{{listing_id}}",
