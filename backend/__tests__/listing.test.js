@@ -730,4 +730,13 @@ describe('Fetch listings endpoints', () => {
       ])
     )
   })
+
+  it('should not fetch listings for invalid user id', async () => {
+    const response = await supertest(app)
+      .get('/api/listings/lkajsdf9080324lsafd')
+      .set('Accept', 'application/json')
+
+    expect(response.status).toBe(400)
+    expect(response.text).toBe('"userId" must be a valid GUID')
+  })
 })
