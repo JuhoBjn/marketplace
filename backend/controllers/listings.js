@@ -105,4 +105,38 @@ const update = async (req, res) => {
   }
 }
 
-module.exports = { create, update }
+const findAll = async (req, res) => {
+  try {
+    const response = await listingModels.findAll()
+    if (response.length === 0) throw new Error('No listings found')
+    res.send(response)
+  } catch (err) {
+    res.status(404).send('No listings found')
+  }
+}
+
+const findAllFromUser = async (req, res) => {
+  const validationSchema = joi.object({
+    userId: joi.string().guid({ version: 'uuidv4' }).required()
+  })
+
+  const userId = req.params.id
+
+  try {
+    const { error } = await validationSchema.validateAsync({ userId })
+    if (error) throw new Error('Validation failed')
+  } catch (err) {
+    res.status(400).send(err.details[0].message)
+    return
+  }
+
+  try {
+    const response = await listingModels.findByUserId(userId)
+    if (response.length === 0) throw new Error('No listings found')
+    res.send(response)
+  } catch (err) {
+    res.status(204).send('No listings found')
+  }
+}
+
+module.exports = { create, update, findAll, findAllFromUser }

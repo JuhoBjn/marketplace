@@ -29,11 +29,36 @@ const listingModels = {
         )
       })
     }),
+  findAll: () =>
+    new Promise((resolve, reject) => {
+      pool.getConnection((err, connection) => {
+        if (err) return reject(err)
+        const selectQuery = `SELECT listings.id, listings.user_id,
+           listings.title, listings.description, listings.price,
+           listings.picture_url, users.firstname, users.lastname, users.email,
+           users.phone
+           FROM listings
+           LEFT JOIN users ON listings.user_id = users.id
+           ORDER BY listings.created;`
+        connection.query(selectQuery, (err, result) => {
+          connection.release()
+          if (err) return reject(err)
+          resolve(result)
+        })
+      })
+    }),
   findByUserId: (userId) =>
     new Promise((resolve, reject) => {
       pool.getConnection((err, connection) => {
         if (err) return reject(err)
-        const selectQuery = 'SELECT * FROM users WHERE id=?;'
+        const selectQuery = `SELECT listings.id, listings.user_id,
+          listings.title, listings.description, listings.price,
+          listings.picture_url, users.firstname, users.lastname, users.email,
+          users.phone
+          FROM listings
+          LEFT JOIN users ON listings.user_id = users.id
+          WHERE user_id=?
+          ORDER BY  listings.created;`
         connection.query(selectQuery, [userId], (err, result) => {
           connection.release()
           if (err) return reject(err)
