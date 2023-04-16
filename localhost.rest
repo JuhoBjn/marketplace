@@ -57,3 +57,11 @@ Authorization: BEARER {{token}}
   "price": 9100,
   "picture_url": "https://cdn10.picryl.com/photo/1984/05/24/a-view-of-laboratory-equipment-used-for-laser-testing-at-the-verona-test-site-08ed51-1600.jpg"
 }
+
+###
+GET http://localhost:5000/api/listings
+Accept: application/json
+
+###
+GET http://localhost:5000/api/listings/{{user_id}}
+Accept: application/json

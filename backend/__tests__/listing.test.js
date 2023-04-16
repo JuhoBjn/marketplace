@@ -467,3 +467,267 @@ describe('Update listing endpoint', () => {
     expect(response.text).toBe('"user_id" is not allowed to be empty')
   })
 })
+
+describe('Fetch listings endpoints', () => {
+  let user
+  const listings = []
+  let otherUser
+  let otherUsersListing
+
+  beforeAll(() => {
+    return new Promise((resolve, reject) => {
+      // Sign up a test user.
+      user = {
+        id: genUuid(),
+        firstname: 'Timmy',
+        lastname: 'Test',
+        email: 'timmy@test.com',
+        phone: '0123456789',
+        password: 'timmy@test.com'
+      }
+      bcrypt.hash(user.password, 10, (err, hash) => {
+        if (err) return reject(err)
+        user.password = hash
+
+        pool.getConnection((err, connection) => {
+          if (err) return reject(err)
+          const insertQuery = 'INSERT INTO users SET ?;'
+          connection.query(insertQuery, [user], (err, result) => {
+            if (err) {
+              connection.release()
+              return reject(err)
+            }
+          })
+
+          // Create test listings.
+          listings.push(
+            {
+              id: genUuid(),
+              user_id: user.id,
+              title: 'Test bench',
+              description: 'Selling a good condition test bench',
+              price: 9200.0,
+              picture_url:
+                'https://cdn10.picryl.com/photo/1984/05/24/a-view-of-laboratory-equipment-used-for-laser-testing-at-the-verona-test-site-08ed51-1600.jpg'
+            },
+            {
+              id: genUuid(),
+              user_id: user.id,
+              title: 'Cucumber moped',
+              description:
+                'Selling my cucumber moped. Good condition, no lowballs.',
+              price: 200.0,
+              picture_url:
+                'https://im.mtvuutiset.fi/image/7481386/landscape16_9/1024/576/e20bb1dea888345bbfb5a710a53f4f3d/DA/kurkkumopo.jpg'
+            },
+            {
+              id: genUuid(),
+              user_id: user.id,
+              title: 'Snake oil',
+              description:
+                'A guaranteed cure for rheumatism whether acute, chronic, sciatic, neuralgic or inflammatory.',
+              price: 600.0,
+              picture_url:
+                'https://openclipart.org/download/275671/yaquissnakeoilkinetoons.svg'
+            }
+          )
+
+          const insertListingQuery = 'INSERT INTO listings SET ?;'
+          connection.query(insertListingQuery, [listings[0]], (err, result) => {
+            if (err) {
+              connection.release()
+              return reject(err)
+            }
+          })
+          connection.query(insertListingQuery, [listings[1]], (err, result) => {
+            if (err) {
+              connection.release()
+              return reject(err)
+            }
+          })
+          connection.query(insertListingQuery, [listings[2]], (err, result) => {
+            if (err) {
+              connection.release()
+              return reject(err)
+            }
+          })
+        })
+
+        // Create other test user.
+        otherUser = {
+          id: genUuid(),
+          firstname: 'John',
+          lastname: 'Doe',
+          email: 'john@doe.com',
+          phone: '9876543210',
+          password: 'john@doe1234'
+        }
+
+        bcrypt.hash(otherUser.password, 10, (err, hash) => {
+          if (err) return reject(err)
+          otherUser.password = hash
+
+          pool.getConnection((err, connection) => {
+            if (err) return reject(err)
+            const insertQuery = 'INSERT INTO users SET ?;'
+            connection.query(insertQuery, [otherUser], (err, result) => {
+              if (err) {
+                connection.release()
+                return reject(err)
+              }
+            })
+
+            // Create listing for other test user.
+            otherUsersListing = {
+              id: genUuid(),
+              user_id: otherUser.id,
+              title: 'Floor lamp',
+              description:
+                "Redesigning my house, so I'm selling my old floor lamp as it doesn't suit the new style.",
+              price: 75.5,
+              picture_url:
+                'https://upload.wikimedia.org/wikipedia/commons/e/eb/Floor_Lamp_MET_DT8293.jpg'
+            }
+            const otherUsersListingInsertQuery = 'INSERT INTO listings SET ?;'
+            connection.query(
+              otherUsersListingInsertQuery,
+              [otherUsersListing],
+              (err, result) => {
+                connection.release()
+                if (err) return reject(err)
+                resolve(result)
+              }
+            )
+          })
+        })
+      })
+    })
+  })
+
+  afterAll(() => {
+    return new Promise((resolve, reject) => {
+      pool.getConnection((err, connection) => {
+        if (err) return reject(err)
+
+        const deleteListingsQuery = 'DELETE FROM listings WHERE id=?;'
+        connection.query(
+          deleteListingsQuery,
+          [listings[0].id],
+          (err, result) => {
+            if (err) {
+              connection.release()
+              return reject(err)
+            }
+          }
+        )
+        connection.query(
+          deleteListingsQuery,
+          [listings[1].id],
+          (err, result) => {
+            if (err) {
+              connection.release()
+              return reject(err)
+            }
+          }
+        )
+        connection.query(
+          deleteListingsQuery,
+          [listings[2].id],
+          (err, result) => {
+            if (err) {
+              connection.release()
+              return reject(err)
+            }
+          }
+        )
+        connection.query(
+          deleteListingsQuery,
+          [otherUsersListing.id],
+          (err, result) => {
+            if (err) {
+              connection.release()
+              return reject(err)
+            }
+          }
+        )
+
+        const deleteUserQuery = 'DELETE FROM users WHERE id=?;'
+        connection.query(deleteUserQuery, [user.id], (err, result) => {
+          if (err) {
+            connection.release()
+            return reject(err)
+          }
+        })
+        connection.query(deleteUserQuery, [otherUser.id], (err, result) => {
+          connection.release()
+          if (err) {
+            return reject(err)
+          }
+          resolve(result)
+        })
+      })
+    })
+  })
+
+  it('should return all listings in json format', async () => {
+    const response = await supertest(app)
+      .get('/api/listings')
+      .set('Accept', 'application/json')
+
+    expect(response.status).toBe(200)
+    expect(response.headers['content-type']).toMatch(/json/)
+    expect(response.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: listings[0].id,
+          user_id: listings[0].user_id,
+          title: listings[0].title,
+          description: listings[0].description,
+          price: `${listings[0].price}.00`,
+          picture_url: listings[0].picture_url,
+          firstname: user.firstname,
+          lastname: user.lastname,
+          email: user.email,
+          phone: user.phone
+        })
+      ])
+    )
+  })
+
+  it('should return all of one users posts in json format', async () => {
+    const response = await supertest(app)
+      .get(`/api/listings/${user.id}`)
+      .set('Accept', 'application/json')
+
+    expect(response.status).toBe(200)
+    expect(response.headers['content-type']).toMatch(/json/)
+    expect(response.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: listings[0].id,
+          user_id: listings[0].user_id,
+          title: listings[0].title,
+          description: listings[0].description,
+          price: `${listings[0].price}.00`,
+          picture_url: listings[0].picture_url,
+          firstname: user.firstname,
+          lastname: user.lastname,
+          email: user.email,
+          phone: user.phone
+        }),
+        expect.not.objectContaining({
+          id: otherUsersListing.id,
+          user_id: otherUsersListing.user_id,
+          title: otherUsersListing.title,
+          description: otherUsersListing.description,
+          price: `${otherUsersListing.price}.00`,
+          picture_url: otherUsersListing.picture_url,
+          firstname: otherUser.firstname,
+          lastname: otherUser.lastname,
+          email: otherUser.email,
+          phone: otherUser.phone
+        })
+      ])
+    )
+  })
+})
