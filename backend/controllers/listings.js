@@ -88,9 +88,11 @@ const update = async (req, res) => {
   // Check if the listing belongs to the user.
   try {
     const result = await listingModels.findByUserId(updatedListing.user_id)
-    if (result.length === 0) throw new Error('Listing does not belong to the user.')
+    if (result.length === 0) {
+      throw new Error('Listing does not belong to the user.')
+    }
   } catch (err) {
-    res.status(403).send('Cannot update someone else\'s listing')
+    res.status(403).send("Cannot update someone else's listing")
     return
   }
 
@@ -139,4 +141,49 @@ const findAllFromUser = async (req, res) => {
   }
 }
 
-module.exports = { create, update, findAll, findAllFromUser }
+const deleteListing = async (req, res) => {
+  const validationSchema = joi.object({
+    listing_id: joi
+      .string()
+      .guid({ version: ['uuidv4'] })
+      .required(),
+    user_id: joi
+      .string()
+      .guid({ version: ['uuidv4'] })
+      .required()
+  })
+
+  const listingId = req.params.id
+  const userId = req.body.user_id
+
+  try {
+    const { error } = await validationSchema.validateAsync({ listing_id: listingId, user_id: userId })
+    if (error) throw new Error('Validation failed')
+  } catch (err) {
+    res.status(400).send(err.details[0].message)
+    return
+  }
+
+  // Check that the listing belongs to the user.
+  try {
+    const response = await listingModels.findByListingId(listingId)
+    if (response.length === 0) {
+      throw new Error('No listing found for given id')
+    }
+    if (response[0].user_id !== userId) {
+      throw new Error("Cannot delete another user's listing")
+    }
+  } catch (err) {
+    res.status(401).send(err.message)
+    return
+  }
+
+  try {
+    await listingModels.deleteById(listingId)
+    res.send('Listing deleted successfully')
+  } catch (err) {
+    res.status(500).send('Something went wrong while deleting listing')
+  }
+}
+
+module.exports = { create, update, findAll, findAllFromUser, deleteListing }

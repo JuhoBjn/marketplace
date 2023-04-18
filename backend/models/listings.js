@@ -65,6 +65,30 @@ const listingModels = {
           resolve(result)
         })
       })
+    }),
+  findByListingId: (listingId) =>
+    new Promise((resolve, reject) => {
+      pool.getConnection((err, connection) => {
+        if (err) return reject(err)
+        const selectQuery = 'SELECT * FROM listings WHERE id=?;'
+        connection.query(selectQuery, [listingId], (err, result) => {
+          connection.release()
+          if (err) return reject(err)
+          resolve(result)
+        })
+      })
+    }),
+  deleteById: (listingId) =>
+    new Promise((resolve, reject) => {
+      pool.getConnection((err, connection) => {
+        if (err) return reject(err)
+        const deleteQuery = 'DELETE FROM listings WHERE id=?;'
+        connection.query(deleteQuery, [listingId], (err, result) => {
+          connection.release()
+          if (err) return reject(err)
+          resolve(result)
+        })
+      })
     })
 }
 
