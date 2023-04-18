@@ -1,4 +1,12 @@
-const { describe, it, beforeAll, afterAll, expect } = require('@jest/globals')
+const {
+  describe,
+  it,
+  beforeAll,
+  afterAll,
+  expect,
+  beforeEach,
+  afterEach
+} = require('@jest/globals')
 const supertest = require('supertest')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
@@ -738,5 +746,196 @@ describe('Fetch listings endpoints', () => {
 
     expect(response.status).toBe(400)
     expect(response.text).toBe('"userId" must be a valid GUID')
+  })
+})
+
+describe('Delete listing endpoint', () => {
+  const user = {}
+  let listing
+
+  let otherUserId
+  let otherUsersListingId
+
+  beforeEach(() => {
+    return new Promise((resolve, reject) => {
+      const testUser = {
+        id: genUuid(),
+        firstname: 'Tina',
+        lastname: 'Tester',
+        email: 'tina@tester.com',
+        phone: '9874563210',
+        password: 'tina@tester12345'
+      }
+
+      bcrypt.hash(testUser.password, 10, (err, hash) => {
+        if (err) return reject(err)
+        testUser.password = hash
+        pool.getConnection((err, connection) => {
+          if (err) return reject(err)
+
+          const insertQuery = 'INSERT INTO users SET ?;'
+          connection.query(insertQuery, [testUser], (err, result) => {
+            if (err) {
+              connection.release()
+              return reject(err)
+            }
+          })
+
+          listing = {
+            id: genUuid(),
+            user_id: testUser.id,
+            title: 'Grandfather clock',
+            description:
+              'My neighbor did not appreciate my new grandfather clock.',
+            price: 200,
+            picture_url:
+              'https://live.staticflickr.com/208/490029373_e13942a0b4_b.jpg'
+          }
+
+          const insertListingQuery = 'INSERT INTO listings SET ?;'
+          connection.query(insertListingQuery, [listing], (err, result) => {
+            connection.release()
+            if (err) return reject(err)
+          })
+        })
+      })
+
+      user.id = testUser.id
+      user.email = testUser.email
+      user.token = jwt.sign(testUser, process.env.JWT_KEY)
+
+      const otherTestUser = {
+        id: genUuid(),
+        firstname: 'Anthony',
+        lastname: 'Other',
+        email: 'anthony@other.com',
+        phone: '1236547890',
+        password: 'anthony@other12345'
+      }
+      otherUserId = otherTestUser.id
+
+      bcrypt.hash(otherTestUser.password, 10, (err, hash) => {
+        if (err) return reject(err)
+        otherTestUser.password = hash
+
+        pool.getConnection((err, connection) => {
+          if (err) return reject(err)
+
+          const insertUserQuery = 'INSERT INTO users SET ?;'
+          connection.query(insertUserQuery, [otherTestUser], (err, result) => {
+            if (err) {
+              connection.release()
+              return reject(err)
+            }
+          })
+
+          const otherTestUsersListing = {
+            id: genUuid(),
+            user_id: otherTestUser.id,
+            title: 'Honda factory head unit',
+            description:
+              "Swapped a new head unit into my car, so I'm selling the old one",
+            price: 20,
+            picture_url: 'https://m.media-amazon.com/images/I/81hG0TvLlLL.jpg'
+          }
+          otherUsersListingId = otherTestUsersListing.id
+
+          const insertListingQuery = 'INSERT INTO listings SET ?;'
+          connection.query(
+            insertListingQuery,
+            [otherTestUsersListing],
+            (err, result) => {
+              connection.release()
+              if (err) return reject(err)
+              resolve(result)
+            }
+          )
+        })
+      })
+    })
+  })
+
+  afterEach(() => {
+    return new Promise((resolve, reject) => {
+      pool.getConnection((err, connection) => {
+        if (err) return reject(err)
+
+        const deleteListingQuery = 'DELETE FROM listings WHERE id=?;'
+        connection.query(deleteListingQuery, [listing.id], (err, result) => {
+          if (err) {
+            connection.release()
+            return reject(err)
+          }
+        })
+
+        connection.query(
+          deleteListingQuery,
+          [otherUsersListingId],
+          (err, result) => {
+            if (err) {
+              connection.release()
+              return reject(err)
+            }
+          }
+        )
+
+        const deleteUserQuery = 'DELETE FROM users WHERE id=?;'
+        connection.query(deleteUserQuery, [user.id], (err, result) => {
+          connection.release()
+          if (err) {
+            connection.release()
+            return reject(err)
+          }
+        })
+
+        connection.query(deleteUserQuery, [otherUserId], (err, result) => {
+          connection.release()
+          if (err) return reject(err)
+          resolve(result)
+        })
+      })
+    })
+  })
+
+  it('should allow a logged in user to delete their own listing', async () => {
+    const response = await supertest(app)
+      .delete(`/api/listings/${listing.id}`)
+      .set('Content', 'application/json')
+      .set('Authorization', `Bearer ${user.token}`)
+      .send({ user_id: user.id })
+
+    // Check that the listing was deleted.
+    let fetchedListing
+    pool.getConnection((err, connection) => {
+      if (err) return console.log(err)
+      const selectQuery = 'SELECT * FROM listings WHERE id=?;'
+      connection.query(selectQuery, [listing.id], (err, result) => {
+        connection.release()
+        if (err) return console.log(err)
+        fetchedListing = result
+      })
+    })
+
+    expect(response.status).toBe(200)
+    expect(response.text).toBe('Listing deleted successfully')
+    expect(fetchedListing).toBeFalsy()
+  })
+
+  it("should not allow a logged in user to delete another user's listing", async () => {
+    const response = await supertest(app)
+      .delete(`/api/listings/${otherUsersListingId}`)
+      .set('Content', 'application/json')
+      .set('Authorization', `Bearer ${user.token}`)
+      .send({ user_id: user.id })
+
+    expect(response.status).toBe(401)
+    expect(response.text).toBe("Cannot delete another user's listing")
+  })
+
+  it('should not allow an unregistered user to delete a listing', async () => {
+    const response = await supertest(app).delete(`/api/listings/${listing.id}`)
+
+    expect(response.status).toBe(401)
+    expect(response.text).toBe('Authentication failed')
   })
 })

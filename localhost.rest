@@ -65,3 +65,12 @@ Accept: application/json
 ###
 GET http://localhost:5000/api/listings/{{user_id}}
 Accept: application/json
+
+###
+DELETE http://localhost:5000/api/listings/{{listing_id}}
+Content-Type: application/json
+Authorization: BEARER {{token}}
+
+{
+  "user_id": "{{user_id}}"
+}
