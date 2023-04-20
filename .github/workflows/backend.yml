@@ -43,3 +43,10 @@ jobs:
       - name: Run tests for backend
         working-directory: ./backend
         run: npm run test
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Trigger deploy on Render
+        run: curl -X POST ${{ secrets.RENDER_BACKEND_DEPLOY_HOOK }}
