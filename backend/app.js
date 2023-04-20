@@ -11,6 +11,7 @@ const corsOptions = {
 app.use(cors(corsOptions))
 app.use(express.json())
 
+// Endpoint to check health of backend.
 app.get('/pulsecheck', (req, res) => {
   res.send('Pulse OK.')
 })
