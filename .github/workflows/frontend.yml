@@ -17,7 +17,7 @@ jobs:
         with:
           node-version: "19"
       - name: Install Node modules
-        workin-directory: ./frontend
+        working-directory: ./frontend
         run: npm install --include=devDependencies
       - name: Run tests for frontend
         working-directory: ./frontend
