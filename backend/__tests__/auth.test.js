@@ -46,6 +46,8 @@ describe('User signup endpoint', () => {
     expect(response.status).toEqual(201)
     expect(response.headers['content-type']).toMatch(/json/)
     expect(response.body.id).toBeTruthy()
+    expect(response.body.firstname).toBeTruthy()
+    expect(response.body.lastname).toBeTruthy()
     expect(response.body.email).toBeTruthy()
     expect(response.body.token).toBeTruthy()
   })
@@ -229,6 +231,8 @@ describe('User login endpoint', () => {
     expect(response.status).toBe(200)
     expect(response.headers['content-type']).toMatch(/json/)
     expect(response.body.id).toBeTruthy()
+    expect(response.body.firstname).toBeTruthy()
+    expect(response.body.lastname).toBeTruthy()
     expect(response.body.email).toBe(testUser.email)
     expect(response.body.token).toBeTruthy()
   })
@@ -306,6 +310,8 @@ describe('Verify token middleware', () => {
   it('should allow request if the request contains a valid token', () => {
     const payload = {
       id: '123oiusfd',
+      firstname: "Tommy",
+      lastname: "Test",
       email: 'tommy@test.com'
     }
     const token = jwt.sign(payload, process.env.JWT_KEY)

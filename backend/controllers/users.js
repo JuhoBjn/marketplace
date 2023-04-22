@@ -65,6 +65,8 @@ const signup = async (req, res) => {
         // Generate token and respond to client.
         const payload = {
           id: newUser.id,
+          firstname: newUser.firstname,
+          lastname: newUser.lastname,
           email: newUser.email
         }
         jwt.sign(
@@ -131,6 +133,8 @@ const login = async (req, res) => {
     // User credentials are correct. Generate token and respond to client.
     const payload = {
       id: user[0].id,
+      firstname: user[0].firstname,
+      lastname: user[0].lastname,
       email: user[0].email
     }
     jwt.sign(
