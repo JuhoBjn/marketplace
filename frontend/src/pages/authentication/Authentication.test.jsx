@@ -1,10 +1,14 @@
 import { render, screen } from "@testing-library/react";
-
+import { BrowserRouter } from "react-router-dom";
 import Authentication from "./Authentication";
 
 describe("The authentication page", () => {
   it("should show signup form", () => {
-    render(<Authentication />);
+    render(
+      <BrowserRouter>
+        <Authentication />
+      </BrowserRouter>
+    );
 
     expect(screen.getByText("First name")).toBeInTheDocument();
     expect(screen.getByTestId("firstname-input")).toBeInTheDocument();
