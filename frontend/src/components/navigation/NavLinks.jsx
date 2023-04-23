@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { NavLink } from "react-router-dom";
 
+import Button from "../button/Button";
 import { AuthContext } from "../../utils/AuthContext";
 
 import "./NavLinks.css";
@@ -11,7 +12,7 @@ const NavLinks = () => {
   return (
     <ul className='navlinks'>
       {authContext.token ? (
-        <button onClick={authContext.logout}>Log out</button>
+        <Button type="action" onClick={authContext.logout}>Log out</Button>
       ) : (
         <li>
           <NavLink to='/authenticate'>Authenticate</NavLink>
