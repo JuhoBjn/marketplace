@@ -1,4 +1,5 @@
 import { useState, useRef, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { AuthContext } from "../../utils/AuthContext";
 
@@ -6,6 +7,7 @@ import "./Authentication.css";
 
 const Authentication = () => {
   const [signupMode, setSignupMode] = useState(true);
+  const [authFailed, setAuthFailed] = useState(false);
   const firstnameRef = useRef("");
   const lastnameRef = useRef("");
   const emailRef = useRef("");
@@ -14,12 +16,16 @@ const Authentication = () => {
 
   const authContext = useContext(AuthContext);
 
+  const navigate = useNavigate();
+
   const toggleSignupMode = () => {
+    setAuthFailed(false);
     setSignupMode(!signupMode);
   };
 
   const signupHandler = async (event) => {
     event.preventDefault();
+    setAuthFailed(false);
     try {
       await authContext.signup(
         firstnameRef.current.value,
@@ -28,6 +34,7 @@ const Authentication = () => {
         phoneRef.current.value,
         passwordRef.current.value
       );
+      navigate("/");
     } catch (err) {
       console.log("Something went wrong while signing up. Please try again.");
     }
@@ -35,19 +42,30 @@ const Authentication = () => {
 
   const loginHandler = async (event) => {
     event.preventDefault();
+    setAuthFailed(false);
     try {
       await authContext.login(
         emailRef.current.value,
         passwordRef.current.value
       );
+      navigate("/");
     } catch (err) {
-      console.log("Something went wrong while loggin in. Please try again.");
+      setAuthFailed(true);
+      console.log(err);
     }
   };
 
   return (
     <div className='authentication-page center'>
       <div className='auth-form__container'>
+        {authFailed && (
+          <div className='auth-error__container'>
+            <p>
+              Invalid credentials. Please check email and password and try
+              again.
+            </p>
+          </div>
+        )}
         <form onSubmit={signupMode ? signupHandler : loginHandler}>
           {signupMode && (
             <div className='auth-form__name-input-container'>
@@ -117,7 +135,11 @@ const Authentication = () => {
             </button>
           </div>
         </form>
-        <button data-testid="toggle-signup-mode-button" className='center' onClick={toggleSignupMode}>
+        <button
+          data-testid='toggle-signup-mode-button'
+          className='center'
+          onClick={toggleSignupMode}
+        >
           {signupMode ? "Change to login" : "Change to signup"}
         </button>
       </div>

@@ -29,9 +29,19 @@ function App() {
    * @param {*} password  - User's password.
    */
   const signupUser = async (firstname, lastname, email, phone, password) => {
-    const response = await signup(firstname, lastname, email, phone, password);
-    setLoggedInUser({ ...response });
-    localStorage.setItem("loggedInUser", JSON.stringify(response));
+    try {
+      const response = await signup(
+        firstname,
+        lastname,
+        email,
+        phone,
+        password
+      );
+      setLoggedInUser({ ...response });
+      localStorage.setItem("loggedInUser", JSON.stringify(response));
+    } catch (err) {
+      return err;
+    }
   };
 
   /**
@@ -40,9 +50,13 @@ function App() {
    * @param {*} password  - User's password.
    */
   const loginUser = async (email, password) => {
-    const response = await login(email, password);
-    setLoggedInUser({ ...response });
-    localStorage.setItem("loggedInUser", JSON.stringify(response));
+    try {
+      const response = await login(email, password);
+      setLoggedInUser({ ...response });
+      localStorage.setItem("loggedInUser", JSON.stringify(response));
+    } catch (err) {
+      throw err;
+    }
   };
 
   /**

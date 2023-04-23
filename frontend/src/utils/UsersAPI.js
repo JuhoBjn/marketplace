@@ -32,7 +32,7 @@ const signup = async (firstname, lastname, email, phone, password) => {
  * Function to login user.
  * @param {*} email     - User's email address.
  * @param {*} password  - User's password.
- * @returns Object containing firstname, lastname, email address and auth token
+ * @returns Object containing firstname, lastname, email address and auth token. Error if authentication fails.
  */
 const login = async (email, password) => {
   const response = await fetch(
@@ -49,6 +49,9 @@ const login = async (email, password) => {
       }),
     }
   );
+  if (response.status === 401 || response.status === 400) {
+    throw new Error("Authentication failed");
+  }
   return response.json();
 };
 

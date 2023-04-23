@@ -27,6 +27,21 @@
   flex-direction: column;
 }
 
+.auth-error__container {
+  height: fit-content;
+  width: 100%;
+  margin-bottom: 1rem;
+  border-style: solid;
+  border-width: 2px;
+  border-color: #f71735;
+  border-radius: 10px;
+}
+
+.auth-error__container p {
+  color: #f71735;
+  padding: 0 1rem;
+}
+
 .auth-form__container label {
   display: block;
   float: left;
