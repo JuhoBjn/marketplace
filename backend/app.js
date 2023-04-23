@@ -4,7 +4,10 @@ const cors = require('cors')
 const app = express()
 
 const corsOptions = {
-  origin: ['localhost'],
+  origin: [
+    'http://localhost:5173',
+    'https://marketplace-frontend-juhobjn.onrender.com'
+  ],
   optionsSuccessStatus: 200
 }
 
