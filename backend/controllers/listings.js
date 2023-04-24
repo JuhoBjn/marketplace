@@ -133,10 +133,9 @@ const findAllFromUser = async (req, res) => {
 
   try {
     const response = await listingModels.findByUserId(userId)
-    if (response.length === 0) throw new Error('No listings found')
     res.send(response)
   } catch (err) {
-    res.status(204).send('No listings found')
+    res.status(500).send('Something went wrong while fetching user listings')
   }
 }
 
