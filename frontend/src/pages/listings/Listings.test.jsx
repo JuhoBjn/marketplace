@@ -6,10 +6,12 @@ describe("The listings page", () => {
   it("should contain button to add new listing", () => {
     render(<Listings />);
 
-    expect(screen.getByRole("button", { name: "New listing" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "New listing" })
+    ).toBeInTheDocument();
   });
-  
-  it("should have ListingsList component", () => {
+
+  it("should have Listings container", () => {
     render(<Listings />);
 
     expect(screen.getByTestId("listings-container")).toBeInTheDocument();

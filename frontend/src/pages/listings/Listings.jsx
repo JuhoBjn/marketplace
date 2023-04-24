@@ -72,10 +72,13 @@ const Listings = () => {
       <div className='listings-header'>
         <Button type={"action"}>New listing</Button>
       </div>
-      <ListingList
-        listings={listings}
-        showLargeListingHandler={showLargeListing}
-      />
+      <div className='listings-container' data-testid='listings-container'>
+        <ListingList
+          data-testid='listings-component'
+          listings={listings}
+          showLargeListingHandler={showLargeListing}
+        />
+      </div>
     </div>
   );
 };

@@ -2,7 +2,7 @@
   height: fit-content;
   width: fit-content;
   position: absolute;
-  top: calc(64px + 7rem);
+  top: 0;
   left: auto;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
