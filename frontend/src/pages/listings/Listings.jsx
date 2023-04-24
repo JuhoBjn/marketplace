@@ -42,7 +42,7 @@ const Listings = () => {
     if (response.length === 0) {
       console.log("Failed to create listing.");
     }
-    setListings((prevState) => [...prevState, response]);
+    fetchListings();
     setShowModal(false);
   };
 
@@ -88,17 +88,18 @@ const Listings = () => {
     setShowModal(true);
   };
 
-  useEffect(() => {
-    const fetchListings = async () => {
-      await setLoading(true);
-      const response = await fetchAll();
-      if (response === "No listings found") {
-        setListings([]);
-        await setLoading(false);
-      }
-      setListings(response);
+  const fetchListings = async () => {
+    await setLoading(true);
+    const response = await fetchAll();
+    if (response === "No listings found") {
+      setListings([]);
       await setLoading(false);
-    };
+    }
+    setListings(response);
+    await setLoading(false);
+  };
+
+  useEffect(() => {
     fetchListings();
   }, []);
 

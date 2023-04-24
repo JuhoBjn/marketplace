@@ -38,7 +38,7 @@ const OwnListings = () => {
     if (response.length === 0) {
       console.log("Failed to create listing.");
     }
-    setListings((prevState) => [...prevState, response]);
+    fetchListings();
     setShowModal(false);
   };
 
@@ -88,17 +88,18 @@ const OwnListings = () => {
     setShowModal(true);
   };
 
-  useEffect(() => {
-    const fetchListings = async () => {
-      await setLoading(true);
-      const response = await fetchOwn(authContext.id);
-      if (response === "No listings found") {
-        setListings([]);
-        await setLoading(false);
-      }
-      setListings(response);
+  const fetchListings = async () => {
+    await setLoading(true);
+    const response = await fetchOwn(authContext.id);
+    if (response === "No listings found") {
+      setListings([]);
       await setLoading(false);
-    };
+    }
+    setListings(response);
+    await setLoading(false);
+  };
+
+  useEffect(() => {
     fetchListings();
   }, []);
 
