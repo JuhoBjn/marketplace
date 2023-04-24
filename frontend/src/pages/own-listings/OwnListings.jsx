@@ -6,7 +6,8 @@ import ListingLarge from "../../components/listing-large/ListingLarge";
 import Modal from "../../components/modal/Modal";
 import Backdrop from "../../components/backdrop/Backdrop";
 import LoadingBar from "../../components/loading/LoadingBar";
-import { fetchOwn } from "../../utils/ListingsAPI";
+import ListingForm from "../../components/listing-form/ListingForm";
+import { fetchOwn, createListing } from "../../utils/ListingsAPI";
 
 import { AuthContext } from "../../utils/AuthContext";
 
@@ -20,6 +21,37 @@ const OwnListings = () => {
 
   const authContext = useContext(AuthContext);
 
+  const createListingHandler = async (
+    title,
+    description,
+    price,
+    pictureUrl
+  ) => {
+    const response = await createListing(
+      authContext.token,
+      authContext.id,
+      title,
+      description,
+      price,
+      pictureUrl
+    );
+    if (response.length === 0) {
+      console.log("Failed to create listing.");
+    }
+    setListings((prevState) => [...prevState, response]);
+    setShowModal(false);
+  };
+
+  const showCreateListing = () => {
+    setModalContent(
+      <ListingForm
+        createListingHandler={createListingHandler}
+        hideModalHandler={hideModal}
+      />
+    );
+    setShowModal(true);
+  };
+
   const editListing = () => {
     console.log("Edit listing button was pressed");
   };
@@ -28,7 +60,7 @@ const OwnListings = () => {
     console.log("Delete listing button was pressed");
   };
 
-  const hideLargeListing = () => {
+  const hideModal = () => {
     setShowModal(false);
   };
 
@@ -48,7 +80,7 @@ const OwnListings = () => {
         lastname={listing.lastname}
         email={listing.email}
         phone={listing.phone}
-        closeHandler={hideLargeListing}
+        closeHandler={hideModal}
         editHandler={editListing}
         deleteHandler={deleteListing}
       />
@@ -75,11 +107,13 @@ const OwnListings = () => {
       {showModal && (
         <>
           <Modal size={"large"}>{modalContent}</Modal>
-          <Backdrop onClick={hideLargeListing} />
+          <Backdrop onClick={hideModal} />
         </>
       )}
       <div className='listings-header'>
-        <Button type={"action"}>New listing</Button>
+        <Button type={"action"} onClick={showCreateListing}>
+          New listing
+        </Button>
       </div>
       <div className='listings-container' data-testid='listings-container'>
         {loading ? (
