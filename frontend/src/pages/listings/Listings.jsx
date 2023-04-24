@@ -47,7 +47,7 @@ const Listings = () => {
     if (response.length === 0) {
       console.log("Failed to create listing.");
     }
-    hideListing();
+    hideModal();
     fetchListings();
   };
 
