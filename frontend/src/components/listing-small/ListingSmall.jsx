@@ -1,14 +1,8 @@
 import "./ListingSmall.css";
 
-const ListingSmall = ({
-  title,
-  price,
-  pictureUrl,
-  firstname,
-  lastname,
-}) => {
+const ListingSmall = ({ title, price, pictureUrl, firstname, lastname }) => {
   return (
-    <div className='listing-small'>
+    <div className='listing-small' data-testid='listing-small'>
       <div className='listing-small__img-container'>
         <img src={pictureUrl} alt={title} />
       </div>

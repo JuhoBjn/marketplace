@@ -27,7 +27,9 @@ const Listings = () => {
   };
 
   const showLargeListing = (listingId) => {
-    const listing = listings.find((listing) => {return listing.id === listingId});
+    const listing = listings.find((listing) => {
+      return listing.id === listingId;
+    });
     setModalContent(
       <ListingLarge
         id={listing.id}
@@ -70,7 +72,7 @@ const Listings = () => {
       <div className='listings-header'>
         <Button type={"action"}>New listing</Button>
       </div>
-      <div className='listings-container'>
+      <div className='listings-container' data-testid='listings-container'>
         <ListingList
           listings={listings}
           showLargeListingHandler={showLargeListing}
