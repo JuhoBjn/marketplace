@@ -89,4 +89,29 @@ const createListing = async (
   }
 };
 
-export { fetchAll, fetchOwn, createListing };
+/**
+ * Function to delete a listing.
+ * @param {*} token
+ * @param {*} userId
+ * @param {*} listingId
+ * @returns Response object from API.
+ */
+const deleteListing = async (token, userId, listingId) => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/listings/${listingId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        user_id: userId,
+      }),
+    });
+    return response;
+  } catch (err) {
+    console.log(`Error deleting listing: ${err}`);
+  }
+};
+
+export { fetchAll, fetchOwn, createListing, deleteListing };

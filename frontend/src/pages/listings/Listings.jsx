@@ -7,7 +7,12 @@ import Modal from "../../components/modal/Modal";
 import Backdrop from "../../components/backdrop/Backdrop";
 import Loading from "../../components/loading/LoadingBar";
 import ListingForm from "../../components/listing-form/ListingForm";
-import { fetchAll, createListing } from "../../utils/ListingsAPI";
+import ConfirmDelete from "../../components/confirm-delete/ConfirmDelete";
+import {
+  fetchAll,
+  createListing,
+  deleteListing,
+} from "../../utils/ListingsAPI";
 
 import { AuthContext } from "../../utils/AuthContext";
 
@@ -42,8 +47,8 @@ const Listings = () => {
     if (response.length === 0) {
       console.log("Failed to create listing.");
     }
+    hideListing();
     fetchListings();
-    setShowModal(false);
   };
 
   const showCreateListing = () => {
@@ -60,8 +65,28 @@ const Listings = () => {
     console.log("Edit listing button was pressed");
   };
 
-  const deleteListing = () => {
-    console.log("Delete listing button was pressed");
+  const deleteListingHandler = async (listingId) => {
+    const response = await deleteListing(
+      authContext.token,
+      authContext.id,
+      listingId
+    );
+    if (response.status !== 200) {
+      console.log("Could not delete listing");
+    }
+    hideModal();
+    fetchListings();
+  };
+
+  const showDeleteListing = (listingId) => {
+    setModalContent(
+      <ConfirmDelete
+        confirm={deleteListingHandler}
+        cancel={hideModal}
+        listingId={listingId}
+      />
+    );
+    setShowModal(true);
   };
 
   const showLargeListing = (listingId) => {
@@ -82,7 +107,7 @@ const Listings = () => {
         phone={listing.phone}
         closeHandler={hideModal}
         editHandler={editListing}
-        deleteHandler={deleteListing}
+        deleteHandler={showDeleteListing}
       />
     );
     setShowModal(true);

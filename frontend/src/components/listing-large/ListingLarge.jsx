@@ -56,7 +56,7 @@ const ListingLarge = ({
           <Button type={"action"} onClick={editHandler}>
             Edit
           </Button>
-          <Button type={"delete"} onClick={deleteHandler}>
+          <Button type={"delete"} onClick={() => deleteHandler(id)}>
             Delete
           </Button>
         </div>
