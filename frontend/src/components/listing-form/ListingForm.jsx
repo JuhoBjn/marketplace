@@ -34,6 +34,7 @@ const ListingForm = ({ createListingHandler, hideModalHandler }) => {
         <label htmlFor='title'>Title</label>
         <input
           id='title'
+          data-testid='title-input'
           type='text'
           placeholder='Enter listing title'
           ref={titleRef}
@@ -42,6 +43,7 @@ const ListingForm = ({ createListingHandler, hideModalHandler }) => {
         <label htmlFor='description'>Description</label>
         <textarea
           id='description'
+          data-testid='description-input'
           type='textarea'
           placeholder='Enter listing description'
           maxLength='250'
@@ -52,20 +54,26 @@ const ListingForm = ({ createListingHandler, hideModalHandler }) => {
         <label htmlFor='price'>Price</label>
         <input
           id='price'
+          data-testid='price-input'
           type='number'
           placeholder='Enter price'
+          step="0.01"
+          min="0"
           ref={priceRef}
           required
         />
         <label htmlFor='picture-url'>Picture URL</label>
         <input
           id='picture-url'
+          data-testid='picture-url-input'
           type='text'
           placeholder='Enter picture URL'
           ref={pictureUrlRef}
           required
         />
-        <Button type='action'>Create listing</Button>
+        <Button data-testid='submit-button' type='action'>
+          Create listing
+        </Button>
       </form>
     </div>
   );
