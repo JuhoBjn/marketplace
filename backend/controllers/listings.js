@@ -110,10 +110,9 @@ const update = async (req, res) => {
 const findAll = async (req, res) => {
   try {
     const response = await listingModels.findAll()
-    if (response.length === 0) throw new Error('No listings found')
     res.send(response)
   } catch (err) {
-    res.status(404).send('No listings found')
+    res.status(500).send('Something went wrong while fetching listings.')
   }
 }
 
@@ -157,7 +156,10 @@ const deleteListing = async (req, res) => {
   const userId = req.body.user_id
 
   try {
-    const { error } = await validationSchema.validateAsync({ listing_id: listingId, user_id: userId })
+    const { error } = await validationSchema.validateAsync({
+      listing_id: listingId,
+      user_id: userId
+    })
     if (error) throw new Error('Validation failed')
   } catch (err) {
     res.status(400).send(err.details[0].message)
