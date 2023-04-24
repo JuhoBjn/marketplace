@@ -137,9 +137,11 @@ const Listings = () => {
         </>
       )}
       <div className='listings-header'>
-        <Button type={"action"} onClick={showCreateListing}>
-          New listing
-        </Button>
+        {!!authContext.token && (
+          <Button type={"action"} onClick={showCreateListing}>
+            New listing
+          </Button>
+        )}
       </div>
       <div className='listings-container' data-testid='listings-container'>
         {loading ? (
