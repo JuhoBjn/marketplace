@@ -5,12 +5,14 @@ import ListingList from "../../components/listing-list/ListingList";
 import ListingLarge from "../../components/listing-large/ListingLarge";
 import Modal from "../../components/modal/Modal";
 import Backdrop from "../../components/backdrop/Backdrop";
+import Loading from "../../components/loading/LoadingBar";
 import { fetchAll } from "../../utils/ListingsAPI";
 
 import "./Listings.css";
 
 const Listings = () => {
   const [listings, setListings] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [modalContent, setModalContent] = useState({});
   const [showModal, setShowModal] = useState(false);
 
@@ -52,11 +54,14 @@ const Listings = () => {
 
   useEffect(() => {
     const fetchListings = async () => {
+      await setLoading(true);
       const response = await fetchAll();
       if (response === "No listings found") {
         setListings([]);
+        await setLoading(false);
       }
       setListings(response);
+      await setLoading(false);
     };
     fetchListings();
   }, []);
@@ -73,11 +78,17 @@ const Listings = () => {
         <Button type={"action"}>New listing</Button>
       </div>
       <div className='listings-container' data-testid='listings-container'>
-        <ListingList
-          data-testid='listings-component'
-          listings={listings}
-          showLargeListingHandler={showLargeListing}
-        />
+        {loading ? (
+          <div className='center'>
+            <Loading />
+          </div>
+        ) : (
+          <ListingList
+            data-testid='listings-component'
+            listings={listings}
+            showLargeListingHandler={showLargeListing}
+          />
+        )}
       </div>
     </div>
   );

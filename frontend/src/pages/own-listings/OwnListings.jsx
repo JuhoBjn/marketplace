@@ -5,6 +5,7 @@ import ListingList from "../../components/listing-list/ListingList";
 import ListingLarge from "../../components/listing-large/ListingLarge";
 import Modal from "../../components/modal/Modal";
 import Backdrop from "../../components/backdrop/Backdrop";
+import LoadingBar from "../../components/loading/LoadingBar";
 import { fetchOwn } from "../../utils/ListingsAPI";
 
 import { AuthContext } from "../../utils/AuthContext";
@@ -13,6 +14,7 @@ import "./OwnListings.css";
 
 const OwnListings = () => {
   const [listings, setListings] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [modalContent, setModalContent] = useState({});
   const [showModal, setShowModal] = useState(false);
 
@@ -56,11 +58,14 @@ const OwnListings = () => {
 
   useEffect(() => {
     const fetchListings = async () => {
+      await setLoading(true);
       const response = await fetchOwn(authContext.id);
       if (response === "No listings found") {
         setListings([]);
+        await setLoading(false);
       }
       setListings(response);
+      await setLoading(false);
     };
     fetchListings();
   }, []);
@@ -77,11 +82,15 @@ const OwnListings = () => {
         <Button type={"action"}>New listing</Button>
       </div>
       <div className='listings-container' data-testid='listings-container'>
-        <ListingList
-          data-testid='listings-component'
-          listings={listings}
-          showLargeListingHandler={showLargeListing}
-        />
+        {loading ? (
+          <LoadingBar />
+        ) : (
+          <ListingList
+            data-testid='listings-component'
+            listings={listings}
+            showLargeListingHandler={showLargeListing}
+          />
+        )}
       </div>
     </div>
   );
