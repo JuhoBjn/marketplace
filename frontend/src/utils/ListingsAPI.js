@@ -8,4 +8,17 @@ const fetchAll = async () => {
   return response.json();
 };
 
-export { fetchAll };
+const fetchOwn = async (userId) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/api/listings/${userId}`,
+    {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    }
+  );
+  return response.json();
+};
+
+export { fetchAll, fetchOwn };
