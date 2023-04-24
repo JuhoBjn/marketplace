@@ -37,6 +37,17 @@
   border-radius: 5px;
 }
 
+/* Remove increment buttons from price input. */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
 .listing-form__container textarea {
   height: 6rem;
   resize: none;
