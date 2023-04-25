@@ -43,8 +43,7 @@
 
 @media (max-width: 768px) {
   #title {
-    left: unset;
-    right: -5rem;
+    display: none;
   }
 
   .navbar__username h3 {
