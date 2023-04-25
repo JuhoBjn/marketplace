@@ -98,20 +98,72 @@ const createListing = async (
  */
 const deleteListing = async (token, userId, listingId) => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/listings/${listingId}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        user_id: userId,
-      }),
-    });
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/listings/${listingId}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          user_id: userId,
+        }),
+      }
+    );
     return response;
   } catch (err) {
     console.log(`Error deleting listing: ${err}`);
   }
 };
 
-export { fetchAll, fetchOwn, createListing, deleteListing };
+/**
+ * Function to update an existing listing.
+ * @param {*} token
+ * @param {*} listingId
+ * @param {*} userId
+ * @param {*} title
+ * @param {*} description
+ * @param {*} price
+ * @param {*} pictureUrl
+ * @returns The updated listing
+ */
+const updateListing = async (
+  token,
+  listingId,
+  userId,
+  title,
+  description,
+  price,
+  pictureUrl
+) => {
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/listings/update`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          id: listingId,
+          user_id: userId,
+          title: title,
+          description: description,
+          price: price,
+          picture_url: pictureUrl,
+        }),
+      }
+    );
+    if (response.status !== 200) {
+      return { message: "Could not update listing" };
+    }
+    return response.json();
+  } catch (err) {
+    console.log(`Error updating listing: ${err}`);
+  }
+};
+
+export { fetchAll, fetchOwn, createListing, deleteListing, updateListing };

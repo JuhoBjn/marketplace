@@ -28,11 +28,11 @@ const ListingLarge = ({
 
   return (
     <div className='listing-large'>
-      <div className="listing-large__close-icon-container" onClick={closeHandler}>
-        <CloseIcon
-          fontSize='large'
-          color='action'
-        />
+      <div
+        className='listing-large__close-icon-container'
+        onClick={closeHandler}
+      >
+        <CloseIcon fontSize='large' color='action' />
       </div>
       <div className='listing-large__img-container'>
         <img src={pictureUrl} alt={title} />
@@ -53,7 +53,7 @@ const ListingLarge = ({
       </div>
       {isOwnListing && (
         <div className='listing-large__actions-container'>
-          <Button type={"action"} onClick={editHandler}>
+          <Button type={"action"} onClick={() => editHandler(id)}>
             Edit
           </Button>
           <Button type={"delete"} onClick={() => deleteHandler(id)}>

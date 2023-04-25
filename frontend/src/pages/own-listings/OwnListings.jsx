@@ -12,6 +12,7 @@ import {
   fetchOwn,
   createListing,
   deleteListing,
+  updateListing,
 } from "../../utils/ListingsAPI";
 
 import { AuthContext } from "../../utils/AuthContext";
@@ -50,6 +51,7 @@ const OwnListings = () => {
   const showCreateListing = () => {
     setModalContent(
       <ListingForm
+        updateMode={false}
         createListingHandler={createListingHandler}
         hideModalHandler={hideModal}
       />
@@ -57,8 +59,47 @@ const OwnListings = () => {
     setShowModal(true);
   };
 
-  const editListing = () => {
-    console.log("Edit listing button was pressed");
+  const updateListingHandler = async (
+    listingId,
+    title,
+    description,
+    price,
+    pictureUrl
+  ) => {
+    const response = await updateListing(
+      authContext.token,
+      listingId,
+      authContext.id,
+      title,
+      description,
+      price,
+      pictureUrl
+    );
+
+    if (response.message === "Could not update listing") {
+      console.log(response.message);
+    }
+    hideModal();
+    fetchListings();
+  };
+
+  const showUpdateListing = (listingId) => {
+    const listing = listings.find((listing) => {
+      return listing.id === listingId;
+    });
+    setModalContent(
+      <ListingForm
+        updateMode={true}
+        listingId={listingId}
+        title={listing.title}
+        description={listing.description}
+        price={listing.price}
+        pictureUrl={listing.picture_url}
+        updateListingHandler={updateListingHandler}
+        hideModalHandler={hideModal}
+      />
+    );
+    setShowModal(true);
   };
 
   const deleteListingHandler = async (listingId) => {
@@ -106,7 +147,7 @@ const OwnListings = () => {
         email={listing.email}
         phone={listing.phone}
         closeHandler={hideModal}
-        editHandler={editListing}
+        editHandler={showUpdateListing}
         deleteHandler={showDeleteListing}
       />
     );

@@ -5,21 +5,41 @@ import Button from "../button/Button";
 
 import "./ListingForm.css";
 
-const ListingForm = ({ createListingHandler, hideModalHandler }) => {
-  const titleRef = useRef("");
-  const descriptionRef = useRef("");
-  const priceRef = useRef(0);
-  const pictureUrlRef = useRef("");
+const ListingForm = ({
+  listingId,
+  title,
+  description,
+  price,
+  pictureUrl,
+  updateMode,
+  createListingHandler,
+  updateListingHandler,
+  hideModalHandler,
+}) => {
+  const titleRef = useRef(updateMode ? title : "");
+  const descriptionRef = useRef(updateMode ? description : "");
+  const priceRef = useRef(updateMode ? price : 0.0);
+  const pictureUrlRef = useRef(updateMode ? pictureUrl : "");
 
   const submitHandler = (event) => {
     event.preventDefault();
 
-    createListingHandler(
-      titleRef.current.value,
-      descriptionRef.current.value,
-      priceRef.current.value,
-      pictureUrlRef.current.value
-    );
+    if (updateMode) {
+      updateListingHandler(
+        listingId,
+        titleRef.current.value,
+        descriptionRef.current.value,
+        priceRef.current.value,
+        pictureUrlRef.current.value
+      );
+    } else {
+      createListingHandler(
+        titleRef.current.value,
+        descriptionRef.current.value,
+        priceRef.current.value,
+        pictureUrlRef.current.value
+      );
+    }
   };
 
   return (
@@ -37,6 +57,7 @@ const ListingForm = ({ createListingHandler, hideModalHandler }) => {
           data-testid='title-input'
           type='text'
           placeholder='Enter listing title'
+          defaultValue={updateMode ? title : ""}
           ref={titleRef}
           required
         />
@@ -48,6 +69,7 @@ const ListingForm = ({ createListingHandler, hideModalHandler }) => {
           placeholder='Enter listing description'
           maxLength='250'
           wrap='soft'
+          defaultValue={updateMode ? description : ""}
           ref={descriptionRef}
           required
         />
@@ -57,8 +79,9 @@ const ListingForm = ({ createListingHandler, hideModalHandler }) => {
           data-testid='price-input'
           type='number'
           placeholder='Enter price'
-          step="0.01"
-          min="0"
+          step='0.01'
+          min='0'
+          defaultValue={updateMode ? price : 0}
           ref={priceRef}
           required
         />
@@ -68,11 +91,12 @@ const ListingForm = ({ createListingHandler, hideModalHandler }) => {
           data-testid='picture-url-input'
           type='text'
           placeholder='Enter picture URL'
+          defaultValue={updateMode ? pictureUrl : ""}
           ref={pictureUrlRef}
           required
         />
         <Button data-testid='submit-button' type='action'>
-          Create listing
+          {updateMode ? "Update" : "Create"} listing
         </Button>
       </form>
     </div>
