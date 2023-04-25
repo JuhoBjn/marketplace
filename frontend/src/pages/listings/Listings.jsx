@@ -156,12 +156,16 @@ const Listings = () => {
 
   const fetchListings = async () => {
     await setLoading(true);
-    const response = await fetchAll();
-    if (response === "No listings found") {
-      setListings([]);
-      await setLoading(false);
+    try {
+      const response = await fetchAll();
+      if (response === "No listings found") {
+        setListings([]);
+      } else {
+        setListings(response);
+      }
+    } catch (err) {
+      console.log(`Error while fetching listings: ${err}`);
     }
-    setListings(response);
     await setLoading(false);
   };
 

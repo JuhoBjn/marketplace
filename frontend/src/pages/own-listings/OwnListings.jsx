@@ -156,12 +156,16 @@ const OwnListings = () => {
 
   const fetchListings = async () => {
     await setLoading(true);
-    const response = await fetchOwn(authContext.id);
-    if (response === "No listings found") {
-      setListings([]);
-      await setLoading(false);
+    try {
+      const response = await fetchOwn(authContext.id);
+      if (response === "No listings found") {
+        setListings([]);
+      } else {
+        setListings(response);
+      }
+    } catch (err) {
+      console.log(`Error while fetching listigns: ${err}`);
     }
-    setListings(response);
     await setLoading(false);
   };
 
