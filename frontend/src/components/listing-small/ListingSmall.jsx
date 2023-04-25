@@ -8,8 +8,8 @@ const ListingSmall = ({ title, price, pictureUrl, firstname, lastname }) => {
       </div>
       <div className='listing-small__info-container'>
         <h2>{title}</h2>
-        <p>{price} €</p>
-        <p>{`${firstname} ${lastname}`}</p>
+        <p data-testid='listing-small__price'>{price} €</p>
+        <p data-testid='listing-small__owner'>{`${firstname} ${lastname}`}</p>
       </div>
     </div>
   );

@@ -5,7 +5,7 @@ import "./ConfirmDelete.css";
 const ConfirmDelete = ({ confirm, cancel, listingId }) => {
   return (
     <div className='confirm-delete__container'>
-      <h3>Are you sure you want to delete the listing?</h3>
+      <h3 data-testid="confirm-delete__p">Are you sure you want to delete the listing?</h3>
       <div className='confirm-delete__actions'>
         <Button type='delete' onClick={() => confirm(listingId)}>
           Delete listing

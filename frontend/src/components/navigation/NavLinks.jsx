@@ -15,15 +15,15 @@ const NavLinks = () => {
         <Button type="action" onClick={authContext.logout}>Log out</Button>
       ) : (
         <li>
-          <NavLink to='/authenticate'>Authenticate</NavLink>
+          <NavLink data-testid="authenticate-navlink" to='/authenticate'>Authenticate</NavLink>
         </li>
       )}
       <li>
-        <NavLink to='/'>Listings</NavLink>
+        <NavLink data-testid="listings-navlink" to='/'>Listings</NavLink>
       </li>
       {!!authContext.token && (
         <li>
-          <NavLink to='/mylistings'>Own listings</NavLink>
+          <NavLink data-testid="own-listings-navlink" to='/mylistings'>Own listings</NavLink>
         </li>
       )}
     </ul>
