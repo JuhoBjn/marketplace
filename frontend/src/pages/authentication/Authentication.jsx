@@ -121,6 +121,7 @@ const Authentication = () => {
             data-testid='password-input'
             type='password'
             placeholder='Enter your password'
+            minLength="8"
             ref={passwordRef}
             required
           />
