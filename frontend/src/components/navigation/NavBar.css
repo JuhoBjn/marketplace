@@ -42,7 +42,7 @@
 }
 
 @media (max-width: 768px) {
-  #title {
+  .navbar h1 {
     display: none;
   }
 
