@@ -87,8 +87,11 @@ const update = async (req, res) => {
 
   // Check if the listing belongs to the user.
   try {
-    const result = await listingModels.findByUserId(updatedListing.user_id)
+    const result = await listingModels.findByListingId(updatedListing.id)
     if (result.length === 0) {
+      throw new Error('Could not find a listing with given ID.')
+    }
+    if (result[0].user_id !== updatedListing.user_id) {
       throw new Error('Listing does not belong to the user.')
     }
   } catch (err) {
